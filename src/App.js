@@ -51,7 +51,7 @@ class App extends Component {
       // get form data out of state
       const { from_time, to_time, in_location, out_location } = this.state;
 
-      fetch('http://localhost:4000/send' , {
+      fetch('/api/send' , {
         method: "POST",
         headers: {
           'Content-type': 'application/json'

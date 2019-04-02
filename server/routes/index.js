@@ -12,8 +12,8 @@ router.post('/send', function(req, res, next) {
   console.log('Hit')
   var from_time = req.body.from_time
   var to_time = req.body.to_time
-  var in_location = '/home/gopavasanth/projects/'+req.body.in_location
-  var out_location = '/home/gopavasanth/projects/'+req.body.out_location
+  var in_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/videos/'+req.body.in_location
+  var out_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/cropped/'+req.body.out_location
   shell.echo(" "+from_time+" "+to_time+" "+in_location+" "+ out_location);
 
   //shell.exec(comandToExecute, {silent:true}).stdout;
@@ -41,49 +41,84 @@ router.get('/insert', function(req, res, next) {
 
 // Download API
 router.post('/download',function(req,res,next){
-  var fs = require('fs');
-  var url = require('url');
-  var http = require('http');
-  var exec = require('child_process').exec;
-  var spawn = require('child_process').spawn;
 
-  // App variables
   var file_url = req.body.url;
-  var DOWNLOAD_DIR = './downloads/';
+  var download_file_wget = function(file_url) {
 
-  console.log("FILE URL : "+file_url);
+      // extract the file name
+      var file_name = url.parse(file_url).pathname.split('/').pop();
+      // compose the wget command
+      var wget = 'wget -P ' + DOWNLOAD_DIR + ' ' + file_url;
+      // excute wget using child_process' exec function
 
-  // We will be downloading the files to a directory, so make sure it's there
-  // This step is not required if you have manually created the directory
-  var mkdir = 'mkdir -p ' + DOWNLOAD_DIR;
-  var child = exec(mkdir, function(err, stdout, stderr) {
-      if (err) throw err;
-      else download_file_httpget(file_url);
-  });
-
-  // Function to download file using HTTP.get
-  var download_file_httpget = function(file_url) {
-  var options = {
-      host: url.parse(file_url).host,
-      port: 80,
-      path: url.parse(file_url).pathname
-  };
-
-  // var file_name='video.mp4';
-  var file_name = url.parse(file_url).pathname.split('/').pop();
-  console.log("File Name: "+ file_name)
-  var file = fs.createWriteStream(DOWNLOAD_DIR + file_name);
-
-  http.get(options, function(res) {
-      res.on('data', function(data) {
-              file.write(data);
-          }).on('end', function() {
-              file.end();
-              console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
-          });
+      var child = exec(wget, function(err, stdout, stderr) {
+          if (err) throw err;
+          else console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
       });
   };
-  res.render('insert', { videosrc: DOWNLOAD_DIR + file_name })
+  res.sendFile(path.join(__dirname+"/"+"htmlfiles/insert.html"));
 })
+
+'use strict'
+
+const Fs = require('fs')
+const Path = require('path')
+const Listr = require('listr')
+const Axios = require('axios')
+
+/**
+ * Start tasks to prepare or destroy data in MongoDB
+ *
+ * @param  {Listr} tasks  Listr instance with tasks
+ * @return {void}
+ */
+function kickoff (tasks) {
+  tasks
+    .run()
+    .then(process.exit)
+    .catch(process.exit)
+}
+
+/**
+ * Entry point for the NPM "pumpitup" and "cleanup" scripts
+ * Imports movie and TV show sample data to MongoDB
+ */
+if (process.argv) {
+  const tasks = [
+    {
+      title: 'Downloading images with axios',
+      task: async () => {
+        const url = 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm'
+        const path = Path.resolve(__dirname, 'videos', 'video.mp4')
+        const writer = Fs.createWriteStream(path)
+
+        const response = await Axios({
+          url,
+          method: 'GET',
+          responseType: 'stream'
+        })
+
+        response.data.pipe(writer)
+
+        return new Promise((resolve, reject) => {
+          writer.on('finish', resolve)
+          writer.on('error', reject)
+        })
+      }
+    }
+  ]
+
+  kickoff(new Listr(tasks))
+}
+
+// router.get('/api/settings', (req, res) => ) {
+//
+// });
+// router.post('/download', function (req, res, next) {
+//     var filepathing = 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm';
+//     var file_nameing = 'video.mp4'; // The default name the browser will use
+//     console.log("Executing")
+//     res.download(filepathing, file_nameing);
+// });
 
 module.exports = router;
