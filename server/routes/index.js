@@ -21,8 +21,7 @@ router.post('/send', function(req, res, next) {
     var cmd = 'ffmpeg -i ' + in_location +' -ss ' + from_time + ' -t '+ to_time + ' -async 1 ' + out_location;
     console.log("Command" +  cmd);
     shell.echo(cmd);
-    if ( shell.exec(cmd,
-  (error, stdout, stderr) => {
+    if ( shell.exec(cmd,(error, stdout, stderr) => {
             console.log(stdout);
             console.info("Program Started");
             console.log(stderr);
@@ -40,6 +39,7 @@ router.get('/insert', function(req, res, next) {
   res.sendFile(path.join(__dirname+"/"+"htmlfiles/insert.html"));
 });
 
+// Download API
 router.post('/download',function(req,res,next){
   var fs = require('fs');
   var url = require('url');
@@ -47,29 +47,32 @@ router.post('/download',function(req,res,next){
   var exec = require('child_process').exec;
   var spawn = require('child_process').spawn;
 
-// App variables
-var file_url = req.body.url;
-var DOWNLOAD_DIR = './downloads/';
+  // App variables
+  var file_url = req.body.url;
+  var DOWNLOAD_DIR = './downloads/';
 
-// We will be downloading the files to a directory, so make sure it's there
-// This step is not required if you have manually created the directory
-var mkdir = 'mkdir -p ' + DOWNLOAD_DIR;
-var child = exec(mkdir, function(err, stdout, stderr) {
-    if (err) throw err;
-    else download_file_httpget(file_url);
-});
+  console.log("FILE URL : "+file_url);
 
-// Function to download file using HTTP.get
-var download_file_httpget = function(file_url) {
-var options = {
-    host: url.parse(file_url).host,
-    port: 80,
-    path: url.parse(file_url).pathname
-};
+  // We will be downloading the files to a directory, so make sure it's there
+  // This step is not required if you have manually created the directory
+  var mkdir = 'mkdir -p ' + DOWNLOAD_DIR;
+  var child = exec(mkdir, function(err, stdout, stderr) {
+      if (err) throw err;
+      else download_file_httpget(file_url);
+  });
 
-var file_name = url.parse(file_url).pathname.split('/').pop();
-console.log("File Name: "+ file_name)
-var file = fs.createWriteStream(DOWNLOAD_DIR + file_name);
+  // Function to download file using HTTP.get
+  var download_file_httpget = function(file_url) {
+  var options = {
+      host: url.parse(file_url).host,
+      port: 80,
+      path: url.parse(file_url).pathname
+  };
+
+  // var file_name='video.mp4';
+  var file_name = url.parse(file_url).pathname.split('/').pop();
+  console.log("File Name: "+ file_name)
+  var file = fs.createWriteStream(DOWNLOAD_DIR + file_name);
 
   http.get(options, function(res) {
       res.on('data', function(data) {
@@ -82,4 +85,5 @@ var file = fs.createWriteStream(DOWNLOAD_DIR + file_name);
   };
   res.render('insert', { videosrc: DOWNLOAD_DIR + file_name })
 })
+
 module.exports = router;
