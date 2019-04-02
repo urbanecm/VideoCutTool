@@ -20,6 +20,11 @@ class App extends Component {
       out_location: ''
     }
   }
+
+  add(data){
+    const existing = this.all;
+    this.all = existing.concate(data);
+  }
   addValues = (e) => {
     e.preventDefault();
     this.props.add({
@@ -39,8 +44,9 @@ class App extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  onSubmit = (e) => {
+  submit = (e) => {
     e.preventDefault();
+    console.log(from_time, to_time, in_location, out_location);
     // get form data out of state
     const { from_time, to_time, in_location, out_location } = this.state;
 
@@ -96,21 +102,21 @@ class App extends Component {
                 <Button type="primary">Trim</Button>
               </Col>
             </Row>
-            <form method='POST' action='http://localhost:4000/send'>
+            <form>
               <br />
-              <Typography.Text strong style={{paddingRight: '0.2rem'}}>Input Video file</Typography.Text>
-              <input placeholder="00:00:00" ref="from_time" name="from_time" />
+              <Typography.Text strong style={{paddingRight: '0.2rem'}}> Video file</Typography.Text>
+              <input placeholder="00:00:00" ref="in_location" name="from_time" />
               <br />
               <Typography.Text strong style={{paddingRight: '0.2rem'}}>From</Typography.Text>
-              <input placeholder="00:00:00" ref="to_time" name="to_time" />
+              <input placeholder="00:00:00" ref="from_time" name="to_time" />
               <br />
               <Typography.Text strong style={{paddingRight: '0.2rem'}}>To</Typography.Text>
-              <input label="in_location" ref="in_location" />
+              <input label="in_location" ref="to_time" />
               <br />
-              <Typography.Text strong style={{paddingRight: '0.2rem'}}>From_Location</Typography.Text>
+              <Typography.Text strong style={{paddingRight: '0.2rem'}}>OutLocation</Typography.Text>
               <input label="out_location" ref="out_location" />
               <br />
-              <Button type="submit" variant="contained" color="primary">Register</Button>
+              <Button onClick={this.submit} onClick={this.addValues} color="primary">Register</Button>
             </form>
           </Content>
           <Footer style={{ textAlign: 'center' }}>

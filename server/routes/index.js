@@ -13,11 +13,13 @@ router.post('/send', function(req, res, next) {
   var from_time = req.body.from_time
   var to_time = req.body.to_time
   var in_location = '/home/gopavasanth/projects/'+req.body.in_location
-  var out_location = req.body.out_location
+  var out_location = '/home/gopavasanth/projects/'+req.body.out_location
   shell.echo(" "+from_time+" "+to_time+" "+in_location+" "+ out_location);
 
   //shell.exec(comandToExecute, {silent:true}).stdout;
-    var cmd = '. /home/gopavasanth/projects/VideoCutTool/server/routes/script.sh '+from_time+' '+to_time+' '+in_location+' '+out_location;
+    // var cmd = '. /home/gopavasanth/projects/VideoCutTool/server/routes/script.sh '+from_time+' '+to_time+' '+in_location+' '+out_location;
+    var cmd = 'ffmpeg -i ' + in_location +' -ss ' + from_time + ' -t '+ to_time + ' -async 1 ' + out_location;
+    console.log("Command" +  cmd);
     shell.echo(cmd);
     if ( shell.exec(cmd,
   (error, stdout, stderr) => {
@@ -66,6 +68,7 @@ var options = {
 };
 
 var file_name = url.parse(file_url).pathname.split('/').pop();
+console.log("File Name: "+ file_name)
 var file = fs.createWriteStream(DOWNLOAD_DIR + file_name);
 
   http.get(options, function(res) {
