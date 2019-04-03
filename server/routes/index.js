@@ -6,14 +6,58 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'VideoCutTool' });
 });
 
+const Fs = require('fs')
+const Path = require('path')
+const Listr = require('listr')
+const Axios = require('axios')
 const shell = require('shelljs');
+
+
+/**
+ * Start tasks to prepare or destroy data in MongoDB
+ *
+ * @param  {Listr} tasks  Listr instance with tasks
+ * @return {void}
+ */
+function kickoff (tasks) {
+    tasks.run()
+    tasks.then(console.log("downloaded."))
+    .catch(process.exit)
+}
 
 router.post('/send', function(req, res, next) {
   console.log('Hit')
   var from_time = req.body.from_time
   var to_time = req.body.to_time
-  var in_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/videos/'+req.body.in_location
-  var out_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/cropped/'+req.body.out_location
+  var hash_name = 'unique_hash'
+  const tasks = [
+    {
+      title: 'Downloading your video',
+      task: async () => {
+        const url = req.body.in_location
+        const path = Path.resolve(__dirname, 'videos',  hash_name + '.mp4')
+        const writer = Fs.createWriteStream(path)
+
+        const response = await Axios({
+          url,
+          method: 'GET',
+          responseType: 'stream'
+        })
+
+        response.data.pipe(writer)
+
+        return new Promise((resolve, reject) => {
+          writer.on('finish', resolve)
+          writer.on('error', reject)
+        })
+      }
+    }
+  ]
+
+  kickoff(new Listr(tasks))
+  console.log("neveer ran")
+  var in_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/videos/'+ unique_hash + '.mp4'
+  var out_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/cropped/'+ unique_hash + '_trimmed.mp4'
   shell.echo(" "+from_time+" "+to_time+" "+in_location+" "+ out_location);
 
   //shell.exec(comandToExecute, {silent:true}).stdout;
@@ -40,85 +84,17 @@ router.get('/insert', function(req, res, next) {
 });
 
 // Download API
-router.post('/download',function(req,res,next){
-
-  var file_url = req.body.url;
-  var download_file_wget = function(file_url) {
-
-      // extract the file name
-      var file_name = url.parse(file_url).pathname.split('/').pop();
-      // compose the wget command
-      var wget = 'wget -P ' + DOWNLOAD_DIR + ' ' + file_url;
-      // excute wget using child_process' exec function
-
-      var child = exec(wget, function(err, stdout, stderr) {
-          if (err) throw err;
-          else console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
-      });
-  };
-  res.sendFile(path.join(__dirname+"/"+"htmlfiles/insert.html"));
-})
-
-'use strict'
-
-const Fs = require('fs')
-const Path = require('path')
-const Listr = require('listr')
-const Axios = require('axios')
-
-/**
- * Start tasks to prepare or destroy data in MongoDB
- *
- * @param  {Listr} tasks  Listr instance with tasks
- * @return {void}
- */
-function kickoff (tasks) {
-  tasks
-    .run()
-    .then(process.exit)
-    .catch(process.exit)
-}
-
-/**
- * Entry point for the NPM "pumpitup" and "cleanup" scripts
- * Imports movie and TV show sample data to MongoDB
- */
-if (process.argv) {
-  const tasks = [
-    {
-      title: 'Downloading images with axios',
-      task: async () => {
-        const url = 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm'
-        const path = Path.resolve(__dirname, 'videos', 'video.mp4')
-        const writer = Fs.createWriteStream(path)
-
-        const response = await Axios({
-          url,
-          method: 'GET',
-          responseType: 'stream'
-        })
-
-        response.data.pipe(writer)
-
-        return new Promise((resolve, reject) => {
-          writer.on('finish', resolve)
-          writer.on('error', reject)
-        })
-      }
-    }
-  ]
-
-  kickoff(new Listr(tasks))
-}
-
-// router.get('/api/settings', (req, res) => ) {
+// router.get('/')
+// 'use strict'
 //
-// });
-// router.post('/download', function (req, res, next) {
-//     var filepathing = 'https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm';
-//     var file_nameing = 'video.mp4'; // The default name the browser will use
-//     console.log("Executing")
-//     res.download(filepathing, file_nameing);
-// });
+
+
+// /**
+//  * Entry point for the NPM "pumpitup" and "cleanup" scripts
+//  * Imports movie and TV show sample data to MongoDB
+//  */
+// if (process.argv) {
+//
+// }
 
 module.exports = router;

@@ -7,61 +7,62 @@ import './App.css';
 import "antd/dist/antd.css";
 import "../node_modules/video-react/dist/video-react.css"; // import css
 
+import axios from 'axios';
+
 const { Header, Content, Footer } = Layout;
 const Search = Input.Search;
 
 class App extends Component {
 
     constructor(props) {
-      super(props)
-      this.state = {
-        from_time: '',
-        to_time: '',
-        in_location: '',
-        out_location: ''
-      }
+      super(props);
+
+      this.onChangeIn_location = this.onChangeIn_location.bind(this);
+      this.onChangeFrom_time = this.onChangeFrom_time.bind(this);
+      this.onChangeTo_time = this.onChangeTo_time.bind(this);
+      this.onSubmit = this.onSubmit.bind(this);
+
+    this.state = {
+      from_time: '',
+      to_time: '',
+      in_location:''
     }
-
-    add(data){
-      const existing = this.all;
-      this.all = existing.concate(data);
-    }
-    addValues = (e) => {
-      e.preventDefault();
-      this.props.add({
-        from_time: this.refs.from_time,
-        to_time: this.refs.to_time,
-        in_location: this.refs.in_location,
-        out_location: this.refs.out_location,
-      });
-
-      this.refs.from_time.value=null;
-      this.refs.to_time.value=null;
-      this.refs.in_location.value=null;
-      this.refs.out_location.value=null;
-    };
-
-    onChange = (e) => {
-      this.setState({ [e.target.name]: e.target.value });
-    }
-
-    submit = (e) => {
-      e.preventDefault();
-      console.log(from_time, to_time, in_location, out_location);
-      // get form data out of state
-      const { from_time, to_time, in_location, out_location } = this.state;
-
-      fetch('/api/send' , {
-        method: "POST",
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify(this.state)
-      })
-        .then((result) => result.json())
-        .then((info) => { console.log(info);})
   }
 
+  onChangeIn_location(e) {
+    this.setState({
+      in_location: e.target.value
+    });
+  }
+
+  onChangeFrom_time(e) {
+    this.setState({
+      from_time: e.target.value
+    });
+  }
+
+  onChangeTo_time(e) {
+    this.setState({
+      to_time: e.target.value
+    });
+  }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const obj = {
+      from_time: this.state.from_time,
+      to_time: this.state.to_time,
+      in_location: this.state.in_location
+    };
+    axios.post('http://localhost:4000/send', obj)
+        .then(res => console.log(res.data));
+
+    this.setState({
+      from_time: '',
+      to_time: '',
+      from_location: ''
+    })
+  }
   render() {
     const { classes } = this.props;
     const { from_time, to_time, in_location, out_location } = this.state;
@@ -70,18 +71,20 @@ class App extends Component {
           <Header>
             <Typography.Title level={2} style={{ color: 'white' }}> VideoCutTool</Typography.Title>
           </Header>
-          <form>
+          <form onSubmit={this.onSubmit}>
           <Content className='Content' style={{ padding: '50px 50px' }}>
             <Row gutter={16}>
               <Col span={16}>
                 <div className="url">
                   <h2>Upload Commons Video link URL here</h2>
-                  <Input placeholder="Commons Video URL" label="in_location" ref="in_location" addonAfter={<Icon type="import" />} />
-                  <br />
-                  <h3>Video Output name</h3>
-                  <Col span={8}>
-                    <Input placeholder="output video name" label="out_location" ref="out_location" />
-                  </Col>
+                   <div className="form-group">
+                    <Input placeholder="Commons Video URL"
+                      label="in_location"
+                      ref="in_location"
+                      addonAfter={<Icon type="import" />}
+                      value={this.state.in_location}
+                      onChange={this.onChangeIn_location}/>
+                   </div>
                   <br />
                   <br />
                 </div>
@@ -89,7 +92,7 @@ class App extends Component {
                 <div className="video-palyer">
                 <link rel="stylesheet" href="/css/video-react.css" />
                 <Player playsInline poster="/assets/poster.png"
-                  src="/home/gopavasanth/projects/video.mp4"
+                  src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm"
                 />
                 </div>
               </Col>
@@ -98,15 +101,33 @@ class App extends Component {
                 <Row gutter={10}>
                   <Col span={6}>
                     <Typography.Text strong style={{paddingRight: '0.2rem'}}>From</Typography.Text>
-                    <Input placeholder="00:00:00" label="from_time" ref="from_time" />
+                     <div className="form-group">
+                      <Input placeholder="00:00:00"
+                        label="from_time"
+                        ref="from_time"
+                        value={this.state.from_time}
+                        onChange={this.onChangeFrom_time}/>
+                      </div>
                   </Col>
                   <Col span={6}>
                     <Typography.Text strong style={{paddingRight: '0.2rem'}}>To</Typography.Text>
-                    <Input placeholder="00:00:00" label="to_time" ref="to_time"/>
+                     <div className="form-group">
+                      <Input placeholder="00:00:00"
+                        label="to_time"
+                        ref="to_time"
+                        value={this.state.to_time}
+                        onChange={this.onChangeTo_time}/>
+                     </div>
                   </Col>
                 </Row>
                 <br />
-                <Button type="primary" onClick={this.submit}  color="primary">Trim</Button>
+                <div className="form-group">
+                  <Button type="primary"
+                    onClick={this.onSubmit}
+                    color="primary"
+                    value="Submitted" >Trim
+                  </Button>
+                </div>
               </Col>
             </Row>
               <br />

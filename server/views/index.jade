@@ -4,25 +4,3 @@ block content
   h1= title
   h2 Welcome to Backend of #{title} with Express JS #{message}
   p VideoCutTool is to trim videos in Wikimedia Commons. Currently all videos in commons can not be edited online. They have to be downloaded and changes has to be made and re-uploaded. As this process tend to take a good amount of time, the  VideoCutTool makes authorised users work hopefully up-to 10x faster, This tool will be be hosted on Wikimedia Toolforge, This is a hosting environment that provide services to the Wikimedia movement.
-  .main.container
-    .Row
-      .col-md-6-md-offset-3
-        h1.display-4.m-b-2 Insert addValues
-
-        form(method='POST' action='/send')
-          div.form-group
-            label(for='url') VideoURL:
-            input#url.form-control(type='text' name='url')
-          button.btn.btn-primary(type='submit') Submit
-
-        form(method='POST' action='/send')
-          div.form-group
-            label(for='from_time') From Time:
-            input#from_time.form-control(type='text', placeholder='00:00:00' name='from_time')
-          div.form-group
-            label(for='to_time') To Time:
-            input#to_time.form-control(type='text', placeholder='00:00:00' name='to_time')
-          button.btn.btn-primary(type='submit') Submit
-
-        video(width='320', height='240', autoplay='')
-          source(src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm" type="video/mp4")
