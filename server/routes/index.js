@@ -55,13 +55,13 @@ router.post('/send', function(req, res, next) {
   ]
 
   kickoff(new Listr(tasks))
-  console.log("neveer ran")
+
   var in_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/videos/'+ unique_hash + '.mp4'
   var out_location = '/home/gopavasanth/projects/VideoCutTool/server/routes/cropped/'+ unique_hash + '_trimmed.mp4'
   shell.echo(" "+from_time+" "+to_time+" "+in_location+" "+ out_location);
 
-  //shell.exec(comandToExecute, {silent:true}).stdout;
-    // var cmd = '. /home/gopavasanth/projects/VideoCutTool/server/routes/script.sh '+from_time+' '+to_time+' '+in_location+' '+out_location;
+  // shell.exec(comandToExecute, {silent:true}).stdout;
+    var cmd = '. /home/gopavasanth/projects/VideoCutTool/server/routes/script.sh '+from_time+' '+to_time+' '+in_location+' '+out_location;
     var cmd = 'ffmpeg -i ' + in_location +' -ss ' + from_time + ' -t '+ to_time + ' -async 1 ' + out_location;
     console.log("Command" +  cmd);
     shell.echo(cmd);
@@ -75,26 +75,11 @@ router.post('/send', function(req, res, next) {
   }).code !== 0 ) {
     shell.echo("Error");
   }
-  //shell.exec('./test.sh')
   res.render('index', { message:"success" });
 });
 
 router.get('/insert', function(req, res, next) {
   res.sendFile(path.join(__dirname+"/"+"htmlfiles/insert.html"));
 });
-
-// Download API
-// router.get('/')
-// 'use strict'
-//
-
-
-// /**
-//  * Entry point for the NPM "pumpitup" and "cleanup" scripts
-//  * Imports movie and TV show sample data to MongoDB
-//  */
-// if (process.argv) {
-//
-// }
 
 module.exports = router;

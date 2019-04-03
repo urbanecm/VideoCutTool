@@ -92,7 +92,7 @@ class App extends Component {
                 <div className="video-palyer">
                 <link rel="stylesheet" href="/css/video-react.css" />
                 <Player playsInline poster="/assets/poster.png"
-                  src="https://upload.wikimedia.org/wikipedia/commons/e/ee/Theodore_Roosevelt%27s_arrival_in_Africa.webm"
+                  src="{this.state.in_location}"
                 />
                 </div>
               </Col>
