@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { Input, Typography, Layout, Upload, InputNumber, Icon, Col, Row, Button, Anchor } from 'antd';
 import { Player } from 'video-react';
+import { Form, FormGroup, Label} from 'reactstrap';
 
 import './App.css';
 import "antd/dist/antd.css";
@@ -21,13 +22,29 @@ class App extends Component {
       this.onChangeFrom_time = this.onChangeFrom_time.bind(this);
       this.onChangeTo_time = this.onChangeTo_time.bind(this);
       this.onSubmit = this.onSubmit.bind(this);
+      this.handleValueChange = this.handleValueChange.bind(this);
+      this.updatePlayerInfo = this.updatePlayerInfo.bind(this);
 
     this.state = {
       from_time: '',
       to_time: '',
-      in_location:''
+      in_location:'',
+      inputVideoUrl: ''
     }
   }
+
+  componentDidUpdate(prevProps, prevState) {
+  if (this.state.playerSource != prevState.playerSource) {
+    this.refs.player.load();
+  }
+}
+
+handleValueChange(e) {
+  var value = e.target.value;
+  this.setState({
+    [e.target.id]: value
+  });
+}
 
   onChangeIn_location(e) {
     this.setState({
@@ -47,12 +64,20 @@ class App extends Component {
     });
   }
 
+  updatePlayerInfo() {
+  this.setState({
+    playerSource: this.state.inputVideoUrl
+  })
+}
+
+
   onSubmit(e) {
     e.preventDefault();
     const obj = {
       from_time: this.state.from_time,
       to_time: this.state.to_time,
-      in_location: this.state.in_location
+      in_location: this.state.in_location,
+      inputVideoUrl: this.state.inputVideoUrl
     };
     axios.post('http://localhost:4000/send', obj)
         .then(res => console.log(res.data));
@@ -60,7 +85,9 @@ class App extends Component {
     this.setState({
       from_time: '',
       to_time: '',
-      from_location: ''
+      from_location: '',
+      in_location: '',
+      inputVideoUrl: ''
     })
   }
   render() {
@@ -75,25 +102,30 @@ class App extends Component {
           <Content className='Content' style={{ padding: '50px 50px' }}>
             <Row gutter={16}>
               <Col span={16}>
-                <div className="url">
-                  <h2>Upload Commons Video link URL here</h2>
-                   <div className="form-group">
-                    <Input placeholder="Commons Video URL"
-                      label="in_location"
-                      ref="in_location"
-                      addonAfter={<Icon type="import" />}
-                      value={this.state.in_location}
-                      onChange={this.onChangeIn_location}/>
-                   </div>
-                  <br />
-                  <br />
-                </div>
-                <br />
-                <div className="video-palyer">
-                <link rel="stylesheet" href="/css/video-react.css" />
-                <Player playsInline poster="/assets/poster.png"
-                  src="{this.state.in_location}"
-                />
+                <div>
+                  <div className="docs-example">
+                    <Form>
+                      <FormGroup>
+                        <Label for="inputVideoUrl">Video Url</Label>
+                        <Input
+                          ref="inputVideoUrl"
+                          name="inputVideoUrl"
+                          id="inputVideoUrl"
+                          value={this.state.inputVideoUrl}
+                          onChange={this.handleValueChange}
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <Button type="primary" onClick={this.updatePlayerInfo}>
+                          Update
+                        </Button>
+                      </FormGroup>
+                    </Form>
+                    <br />
+                    <Player ref="player" videoId="video-1">
+                      <source src={this.state.playerSource} />
+                    </Player>
+                  </div>
                 </div>
               </Col>
               <Col span={8}>
