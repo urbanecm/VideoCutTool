@@ -29,12 +29,14 @@ router.post('/send', function(req, res, next) {
   console.log('Hit')
   var from_time = req.body.from_time
   var to_time = req.body.to_time
+  var inputVideoUrl = req.body.inputVideoUrl
+
   var hash_name = 'unique_hash'
   const tasks = [
     {
       title: 'Downloading your video',
       task: async () => {
-        const url = req.body.in_location
+        const url = req.body.inputVideoUrl
         const path = Path.resolve(__dirname, 'videos',  hash_name + '.mp4')
         const writer = Fs.createWriteStream(path)
 
