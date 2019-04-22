@@ -18,7 +18,6 @@ class App extends Component {
     constructor(props) {
       super(props);
 
-      this.onChangeIn_location = this.onChangeIn_location.bind(this);
       this.onChangeFrom_time = this.onChangeFrom_time.bind(this);
       this.onChangeTo_time = this.onChangeTo_time.bind(this);
       this.onSubmit = this.onSubmit.bind(this);
@@ -28,7 +27,6 @@ class App extends Component {
     this.state = {
       from_time: '',
       to_time: '',
-      in_location:'',
       inputVideoUrl: ''
     }
   }
@@ -45,12 +43,6 @@ handleValueChange(e) {
     [e.target.id]: value
   });
 }
-
-  onChangeIn_location(e) {
-    this.setState({
-      in_location: e.target.value
-    });
-  }
 
   onChangeFrom_time(e) {
     this.setState({
@@ -76,7 +68,6 @@ handleValueChange(e) {
     const obj = {
       from_time: this.state.from_time,
       to_time: this.state.to_time,
-      in_location: this.state.in_location,
       inputVideoUrl: this.state.inputVideoUrl
     };
     axios.post('http://localhost:4000/send', obj)
@@ -86,13 +77,12 @@ handleValueChange(e) {
       from_time: '',
       to_time: '',
       from_location: '',
-      in_location: '',
       inputVideoUrl: ''
     })
   }
   render() {
     const { classes } = this.props;
-    const { from_time, to_time, in_location, out_location } = this.state;
+    const { from_time, to_time, out_location } = this.state;
     return (
         <Layout className="layout">
           <Header>

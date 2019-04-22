@@ -63,7 +63,7 @@ router.post('/send', function(req, res, next) {
   shell.echo(" "+from_time+" "+to_time+" "+in_location+" "+ out_location);
 
   // shell.exec(comandToExecute, {silent:true}).stdout;
-    var cmd = '. /home/gopavasanth/projects/VideoCutTool/server/routes/script.sh '+from_time+' '+to_time+' '+in_location+' '+out_location;
+    // var cmd = '. /home/gopavasanth/projects/VideoCutTool/server/routes/script.sh '+from_time+' '+to_time+' '+in_location+' '+out_location;
     var cmd = 'ffmpeg -i ' + in_location +' -ss ' + from_time + ' -t '+ to_time + ' -async 1 ' + out_location;
     console.log("Command" +  cmd);
     shell.echo(cmd);
